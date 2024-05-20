@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -33,16 +35,16 @@ public class Flight {
     private String destinationName;
 
     @Column(name = "departure_date")
-    private Date departureDate;
+    private LocalDate departureDate;
 
     @Column(name = "departure_time")
-    private Time departureTime;
+    private LocalTime departureTime;
 
     @Column(name = "arrival_date")
-    private Date arrivalDate;
+    private LocalDate arrivalDate;
 
     @Column(name = "arrival_time")
-    private Time arrivalTime;
+    private LocalTime arrivalTime;
 
     @Column(name = "carrier")
     private String carrier;
