@@ -11,6 +11,10 @@ java {
 	sourceCompatibility = '17'
 }
 
+bootJar {
+	archiveFileName = "app.jar"
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -34,6 +38,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+}
+
+tasks.named('bootBuildImage') {
+	builder = 'paketobuildpacks/builder-jammy-base:latest'
 }
 
 tasks.named('test') {

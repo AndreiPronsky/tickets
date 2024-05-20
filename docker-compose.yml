@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  tickets:
+    build: .\
+    ports:
+      - "7000:8080"
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_URL=jdbc:postgresql://flights:5432/flights
+    depends_on:
+      - flights-db
+    restart: always
+  flights-db:
+    image: postgres
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=flights
+    volumes:
+      - flights:/var/lib/postgresql/data
+    restart: always
+volumes:
+  flights:
