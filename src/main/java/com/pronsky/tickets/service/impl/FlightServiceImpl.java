@@ -9,17 +9,21 @@ import com.pronsky.tickets.service.FlightService;
 import com.pronsky.tickets.service.dto.FlightDto;
 import com.pronsky.tickets.utils.FileUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
+@Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class FlightServiceImpl implements FlightService {
-    private static final String FILE_URL = "https://s05klg.storage.yandex.net/rdisk/15e92e3d4834583b10e0153c2c777820cb0bce92796f3a81274a84d6e78ca4fc/6648e326/tYeYlYQMDWrLhsxckWkAuP3Ck9Wv7deEj87WcHGwdTm49fctSgbzwkL8qSfsWKghDzP_RaLgpvN1s69sv-aM0g==?uid=0&filename=tickets.json&disposition=attachment&hash=gxbPmhnihZEHDf40Y%2BmEflWv/UCAvstx8Z40Bynq9aBVoadN0nT%2BBKoi87wK3wOGq/J6bpmRyOJonT3VoXnDag%3D%3D&limit=0&content_type=text%2Fplain&owner_uid=332089970&fsize=3922&hid=bc0d0d9d411c6f4a469ecad58e277e93&media_type=text&tknv=v2&ts=618bdac029580&s=d7f940c8a723271b3bb56060761ed1e759fc533fbf58a5fb64aa917db19eae3a&pb=U2FsdGVkX1_R9rrvKDRlTBO1Nyn4cimwQwBfrZwR7TklyGLbKqop2LGXg3j0mVBe_newNdG9mg_FBQnEJ4yYOTvDgf9y3iP80QOidtvKspQ";
+    private static final String FILE_URL = "https://s388vla.storage.yandex.net/rdisk/939a7cca7b7e05bd60c4fc7621d5cd6de35bca8a8eba9f7d01540af03456a76f/664ca6cf/tYeYlYQMDWrLhsxckWkAuKmyFwxd2DOwscmTzQm-lQbsHtZjDZnhMs2ptGNi23tcVzdDAF_DH6yVOzUgfaC8pQ==?uid=0&filename=%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%BE%D0%B5_%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA_%D0%BD%D0%B0_%D0%BF%D0%BB%D0%B0%D1%82%D1%84%D0%BE%D1%80%D0%BC%D0%B5.docx&disposition=attachment&hash=1ReiRneGK1xcK7wl9uf2I3enG0fxygtNyklRyyD7cZUGhnCo7VrUKeIwApEvapxnq/J6bpmRyOJonT3VoXnDag%3D%3D&limit=0&content_type=application%2Fvnd.openxmlformats-officedocument.wordprocessingml.document&owner_uid=332089970&fsize=27585&hid=20cedbc619a03cba4dc7499d18a6af14&media_type=document&tknv=v2&ts=618f71c4c11c0&s=e45590fe8905ab6c66ffa557a7d94ad7714db6b95c78fd0d5f4d83e4e90f202a&pb=U2FsdGVkX18NY-2eGoZRUv6A96THMgi6f2rfXl0Jvy9xOtFl9QEtETOAIzng6cbeCDUjiorA-VHf0S0l7AHl7AV7iVq2EYYlfJCxapoUCvI";
     private static final String FILE_NAME = "tickets.json";
     private static final String origin = "VVO";
     private static final String destination = "TLV";
@@ -37,7 +41,7 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Double getDifferenceBtwMedianAndAverage() {
-        List<FlightDto> flights = repository.findAllByDepartureAndDestination(origin, destination)
+        List<FlightDto> flights = repository.findAllByOriginAndDestination(origin, destination)
                 .stream()
                 .map(mapper::toDto)
                 .toList();
@@ -47,7 +51,8 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public Map<String, Duration> getMinDurationForEveryCarrier(List<FlightDto> flights) {
+    public Map<String, Duration> getMinDurationForEveryCarrier() {
+        List<FlightDto> flights = deserialize();
         Map<String, Duration> result = new HashMap<>();
         String carrier;
         for (FlightDto flight : flights) {
@@ -69,7 +74,8 @@ public class FlightServiceImpl implements FlightService {
         return result;
     }
 
-    private List<FlightDto> deserialize() {
+    @Override
+    public List<FlightDto> deserialize() {
         fileUtil.saveFile(FILE_URL, FILE_NAME);
         String content = fileUtil.readFile(FILE_NAME);
         List<FlightDto> flights = new ArrayList<>();
@@ -78,25 +84,27 @@ public class FlightServiceImpl implements FlightService {
             JsonNode tickets = root.get("tickets");
             if (tickets.isArray()) {
                 for (JsonNode node : tickets) {
-                    FlightDto dto = new FlightDto();
-                    dto.setOrigin(String.valueOf(node.get("origin")));
-                    dto.setOriginName(String.valueOf(node.get("origin_name")));
-                    dto.setDestination(String.valueOf(node.get("destination")));
-                    dto.setDestinationName(String.valueOf(node.get("destination_name")));
-                    dto.setDepartureDate(LocalDate.parse(String.valueOf(node.get("departure_date"))));
-                    dto.setDepartureTime(LocalTime.parse(String.valueOf(node.get("departure_time"))));
-                    dto.setArrivalDate(LocalDate.parse(String.valueOf(node.get("arrival_date"))));
-                    dto.setArrivalTime(LocalTime.parse(String.valueOf(node.get("arrival_time"))));
-                    dto.setCarrier(String.valueOf(node.get("carrier")));
-                    dto.setStops(Byte.parseByte(String.valueOf(node.get("stops"))));
-                    dto.setPrice(Integer.parseInt(String.valueOf(node.get("price"))));
-                    flights.add(dto);
+                    setValuesAndAddToList(flights, node);
                 }
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         return flights;
+    }
+
+    private void setValuesAndAddToList(List<FlightDto> flights, JsonNode node) {
+        FlightDto dto = new FlightDto();
+        dto.setOrigin(String.valueOf(node.get("origin")));
+        dto.setDestination(String.valueOf(node.get("destination")));
+        dto.setDepartureDate(LocalDate.parse(String.valueOf(node.get("departure_date"))));
+        dto.setDepartureTime(LocalTime.parse(String.valueOf(node.get("departure_time"))));
+        dto.setArrivalDate(LocalDate.parse(String.valueOf(node.get("arrival_date"))));
+        dto.setArrivalTime(LocalTime.parse(String.valueOf(node.get("arrival_time"))));
+        dto.setCarrier(String.valueOf(node.get("carrier")));
+        dto.setStops(Byte.parseByte(String.valueOf(node.get("stops"))));
+        dto.setPrice(Integer.parseInt(String.valueOf(node.get("price"))));
+        flights.add(dto);
     }
 
     private Double getMedian(List<FlightDto> flights) {

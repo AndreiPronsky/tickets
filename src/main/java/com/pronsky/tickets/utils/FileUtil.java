@@ -1,9 +1,15 @@
 package com.pronsky.tickets.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
+@Slf4j
+@Lazy
+@Component
 public class FileUtil {
     public void saveFile(String fileUrl, String fileName) {
         StringBuilder content = new StringBuilder();

@@ -1,10 +1,14 @@
 package com.pronsky.tickets.data;
 
 import com.pronsky.tickets.data.entities.Flight;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Lazy
+@Repository
 public interface FlightRepository extends JpaRepository<Flight, Long> {
-    List<Flight> findAllByDepartureAndDestination(String departure, String destination);
+    List<Flight> findAllByOriginAndDestination(String origin, String destination);
 }

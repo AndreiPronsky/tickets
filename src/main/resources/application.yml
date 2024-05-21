@@ -8,5 +8,5 @@ spring:
   datasource:
     username: postgres
     password: root
-    url: jdbc:postgresql://flights:5432/flights
+    url: jdbc:postgresql://flights-db:5432/flights
     driver-class-name: org.postgresql.Driver

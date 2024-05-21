@@ -21,6 +21,5 @@ services:
       - POSTGRES_DB=flights
     volumes:
       - flights:/var/lib/postgresql/data
-    restart: always
 volumes:
   flights:

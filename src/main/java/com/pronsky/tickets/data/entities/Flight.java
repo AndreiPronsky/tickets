@@ -33,15 +33,19 @@ public class Flight {
     private String destinationName;
 
     @Column(name = "departure_date")
+    @Temporal(TemporalType.DATE)
     private LocalDate departureDate;
 
     @Column(name = "departure_time")
+    @Temporal(TemporalType.TIME)
     private LocalTime departureTime;
 
     @Column(name = "arrival_date")
+    @Temporal(TemporalType.DATE)
     private LocalDate arrivalDate;
 
     @Column(name = "arrival_time")
+    @Temporal(TemporalType.TIME)
     private LocalTime arrivalTime;
 
     @Column(name = "carrier")

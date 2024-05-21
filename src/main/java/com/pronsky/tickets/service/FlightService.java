@@ -10,6 +10,6 @@ public interface FlightService {
 
     void saveAll(List<FlightDto> flightDtos);
     Double getDifferenceBtwMedianAndAverage();
-
-    Map<String, Duration> getMinDurationForEveryCarrier(List<FlightDto> flights);
+    Map<String, Duration> getMinDurationForEveryCarrier();
+    List<FlightDto> deserialize();
 }
