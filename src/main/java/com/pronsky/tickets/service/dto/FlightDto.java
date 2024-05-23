@@ -1,10 +1,11 @@
 package com.pronsky.tickets.service.dto;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.sql.Time;;
+import java.sql.Date;
 
 @Data
 @NoArgsConstructor
@@ -19,13 +20,9 @@ public class FlightDto {
 
     private String destinationName;
 
-    private LocalDate departureDate;
+    private String departureDateAndTime;
 
-    private LocalTime departureTime;
-
-    private LocalDate arrivalDate;
-
-    private LocalTime arrivalTime;
+    private String arrivalDateAndTime;
 
     private String carrier;
 

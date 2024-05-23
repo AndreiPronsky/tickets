@@ -4,13 +4,14 @@ services:
     build: .\
     ports:
       - "7000:8080"
+      - "5005:5005"
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USERNAME=postgres
       - POSTGRES_URL=jdbc:postgresql://flights:5432/flights
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     depends_on:
       - flights-db
-    restart: always
   flights-db:
     image: postgres
     expose:
@@ -19,6 +20,7 @@ services:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=flights
+    restart: always
     volumes:
       - flights:/var/lib/postgresql/data
 volumes:

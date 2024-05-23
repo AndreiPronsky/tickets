@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.sql.Time;
+import java.sql.Date;
 import java.util.Objects;
 
 @Entity
@@ -32,21 +32,11 @@ public class Flight {
     @Column(name = "destination_name")
     private String destinationName;
 
-    @Column(name = "departure_date")
-    @Temporal(TemporalType.DATE)
-    private LocalDate departureDate;
+    @Column(name = "dep_date_and_time")
+    private String departureDateAndTime;
 
-    @Column(name = "departure_time")
-    @Temporal(TemporalType.TIME)
-    private LocalTime departureTime;
-
-    @Column(name = "arrival_date")
-    @Temporal(TemporalType.DATE)
-    private LocalDate arrivalDate;
-
-    @Column(name = "arrival_time")
-    @Temporal(TemporalType.TIME)
-    private LocalTime arrivalTime;
+    @Column(name = "arrival_date_and_time")
+    private String arrivalDateAndTime;
 
     @Column(name = "carrier")
     private String carrier;
@@ -57,34 +47,4 @@ public class Flight {
     @Column(name = "price")
     private int price;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Flight flight = (Flight) o;
-        return stops == flight.stops && price == flight.price && Objects.equals(id, flight.id) && Objects.equals(origin, flight.origin) && Objects.equals(originName, flight.originName) && Objects.equals(destination, flight.destination) && Objects.equals(destinationName, flight.destinationName) && Objects.equals(departureDate, flight.departureDate) && Objects.equals(departureTime, flight.departureTime) && Objects.equals(arrivalDate, flight.arrivalDate) && Objects.equals(arrivalTime, flight.arrivalTime) && Objects.equals(carrier, flight.carrier);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, origin, originName, destination, destinationName, departureDate, departureTime, arrivalDate, arrivalTime, carrier, stops, price);
-    }
-
-    @Override
-    public String toString() {
-        return "Flight{" +
-                "id=" + id +
-                ", origin='" + origin + '\'' +
-                ", originName='" + originName + '\'' +
-                ", destination='" + destination + '\'' +
-                ", destinationName='" + destinationName + '\'' +
-                ", departureDate=" + departureDate +
-                ", departureTime=" + departureTime +
-                ", arrivalDate=" + arrivalDate +
-                ", arrivalTime=" + arrivalTime +
-                ", carrier='" + carrier + '\'' +
-                ", stops=" + stops +
-                ", price=" + price +
-                '}';
-    }
 }
