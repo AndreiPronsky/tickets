@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -25,6 +27,9 @@ public class FlightServiceImpl implements FlightService {
     private static final String ORIGIN = "VVO";
     private static final String DESTINATION = "TLV";
     private static final String FILE_NAME = "/data/tickets.json";
+    private static final String VVO_ZONE_ID = "+10";
+    private static final String TLV_ZONE_ID = "+3";
+
     private final FlightRepository repository;
     private final ObjectMapper objectMapper;
     private final FlightMapper mapper;
@@ -49,7 +54,10 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Map<String, Duration> getMinDurationForEveryCarrier() {
-        List<FlightDto> flights = deserialize();
+        List<FlightDto> flights = repository.findAllByOriginAndDestination(ORIGIN, DESTINATION)
+                .stream()
+                .map(mapper::toDto)
+                .toList();
         Map<String, Duration> result = new HashMap<>();
         String carrier;
         for (FlightDto flight : flights) {
@@ -59,14 +67,14 @@ public class FlightServiceImpl implements FlightService {
             }
         }
         Duration duration;
-        for (String key : result.keySet()) {
-            Duration value = result.get(key);
-            for (FlightDto flight : flights) {
-                LocalDateTime departure = parseDateTime(flight.getDepartureDateAndTime());
-                LocalDateTime arrival = parseDateTime(flight.getArrivalDateAndTime());
+        for (FlightDto flight : flights) {
+            for (String key : result.keySet()) {
+                Duration value = result.get(key);
+                ZonedDateTime departure = parseDateTime(flight.getDepartureDateAndTime(), ZoneId.of(VVO_ZONE_ID));
+                ZonedDateTime arrival = parseDateTime(flight.getArrivalDateAndTime(), ZoneId.of(TLV_ZONE_ID));
                 duration = Duration.between(departure, arrival);
-                if (flight.getCarrier().equals(key) && (value == null || duration.compareTo(result.get(key)) < 0)) {
-                    result.replace(key, duration);
+                if (flight.getCarrier().equals(key) && (value == null || duration.compareTo(value) < 0)) {
+                    result.put(key, duration);
                 }
             }
         }
@@ -129,20 +137,21 @@ public class FlightServiceImpl implements FlightService {
     }
 
     private String reformatDateAndTime(JsonNode node, String dateProperty, String timeProperty) {
-        String departureDate = String.valueOf(node.get(dateProperty)).replaceAll("\"", "");
-        String departureTime = String.valueOf(node.get(timeProperty)).replaceAll("\"", "");
-        if (departureTime.length() == 4) {
-            departureTime = "0" + departureTime;
+        String date = String.valueOf(node.get(dateProperty)).replaceAll("\"", "");
+        String time = String.valueOf(node.get(timeProperty)).replaceAll("\"", "");
+        if (time.length() == 4) {
+            time = "0" + time;
         }
-        return departureDate + " " + departureTime;
+        return date + " " + time;
     }
 
-    private LocalDateTime parseDateTime(String dateTime) {
+    private ZonedDateTime parseDateTime(String dateTime, ZoneId zoneId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
-        return LocalDateTime.parse(dateTime, formatter);
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
+        return ZonedDateTime.of(localDateTime, zoneId);
     }
 
     private String reformatToUTF(String raw) {
-        return String.valueOf(raw.replaceAll("\"", "").getBytes(StandardCharsets.UTF_8));
+        return Arrays.toString(raw.replaceAll("\"", "").getBytes(StandardCharsets.UTF_8));
     }
 }

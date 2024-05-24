@@ -1,11 +1,7 @@
 package com.pronsky.tickets.service.dto;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.sql.Time;;
-import java.sql.Date;
 
 @Data
 @NoArgsConstructor
